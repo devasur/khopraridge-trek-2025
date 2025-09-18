@@ -35,8 +35,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Data and privacy-sensitive files
-/data/
+# Privacy-sensitive files only
 *.csv
 *.md
 /scripts/
@@ -44,5 +43,8 @@ EMAIL_MAPPING.md
 INSTANT_RULES.md
 ICE*.csv
 
-# Exclude scripts from build
-scripts/
+# Allow safe data files for build
+!/data/packingListData.ts
+!/data/trekRouteData.ts
+!/data/documentaryData.ts
+!/data/groupData.ts
