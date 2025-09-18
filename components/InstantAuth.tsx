@@ -32,6 +32,13 @@ export default function InstantAuth({ children }: InstantAuthProps) {
     )
   }
 
+  const handleSignOut = () => {
+    db.auth.signOut()
+    setSentEmail('')
+    setCode('')
+    setEmail('')
+  }
+
   // If user is authenticated, check if still authorized
   if (user) {
     const userAllowed = allowedEmails.length > 0
@@ -107,12 +114,6 @@ export default function InstantAuth({ children }: InstantAuthProps) {
     }
   }
 
-  const handleSignOut = () => {
-    db.auth.signOut()
-    setSentEmail('')
-    setCode('')
-    setEmail('')
-  }
 
   // Show email input form
   if (!sentEmail) {

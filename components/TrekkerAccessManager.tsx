@@ -73,7 +73,7 @@ export default function TrekkerAccessManager({ userEmail }: TrekkerAccessManager
 
       // Then add their email to allowedEmails
       await db.transact(
-        db.tx.allowedEmails[db.id()].update({
+        db.tx.allowedEmails[crypto.randomUUID()].update({
           email: trekker.email.toLowerCase().trim(),
           role: 'participant',
           addedBy: userEmail,

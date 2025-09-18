@@ -87,9 +87,9 @@ export default function GroupStatusTracker() {
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-3">
-                <span className="text-xl">{statusIcons[member.bookingStatus]}</span>
+                <span className="text-xl">{statusIcons[member.bookingStatus as keyof typeof statusIcons]}</span>
                 <h3 className="font-semibold text-lg">{member.name}</h3>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[member.bookingStatus]}`}>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[member.bookingStatus as keyof typeof statusColors]}`}>
                   {member.bookingStatus.toUpperCase()}
                 </span>
               </div>
@@ -102,7 +102,7 @@ export default function GroupStatusTracker() {
                 const memberFlights = getMemberFlights(member);
                 return memberFlights.length > 0 ? (
                   <div className="space-y-2">
-                    {memberFlights.map((flight, index) => (
+                    {memberFlights.map((flight: any, index: number) => (
                       <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
                         <div>
                           <span className="font-medium">{flight.flightNumber}</span> - {flight.route}

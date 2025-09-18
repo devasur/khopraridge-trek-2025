@@ -43,3 +43,6 @@ next-env.d.ts
 EMAIL_MAPPING.md
 INSTANT_RULES.md
 ICE*.csv
+
+# Exclude scripts from build
+scripts/

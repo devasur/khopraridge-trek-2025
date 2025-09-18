@@ -36,7 +36,7 @@ export default function DataClearer() {
       console.log('⚠️ Clearing all data from InstantDB...')
 
       // Collect all records from all entities
-      const allDeletions = []
+      const allDeletions: any[] = []
 
       // Trek Members
       const trekMembers = trekMembersData?.trekMembers || []

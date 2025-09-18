@@ -39,7 +39,7 @@ export default function InstantPackingList() {
 
   // Create progress map for quick lookup
   const progressMap = userProgress.reduce((acc, progress) => {
-    acc[progress.packingItem?.id] = progress
+    acc[progress.packingItemId] = progress
     return acc
   }, {} as Record<string, any>)
 
@@ -197,7 +197,7 @@ export default function InstantPackingList() {
       {Object.entries(itemsByCategory).map(([category, items]) => (
         <div key={category} className="card">
           <h3 className="text-lg font-semibold text-nepal-blue mb-4">
-            {categoryIcons[category]} {categoryNames[category] || category}
+            {categoryIcons[category as keyof typeof categoryIcons]} {categoryNames[category as keyof typeof categoryNames] || category}
           </h3>
 
           <div className="space-y-2">

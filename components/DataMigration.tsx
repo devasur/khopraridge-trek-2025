@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { migrateData } from '@/scripts/migrate-data'
+// import { migrateData } from '@/scripts/migrate-data'
 
 export default function DataMigration() {
   const [isRunning, setIsRunning] = useState(false)
@@ -12,7 +12,7 @@ export default function DataMigration() {
     setResult(null)
 
     try {
-      const migrationResult = await migrateData()
+      const migrationResult = { success: false, error: 'Migration not available in production build' }
       setResult(migrationResult)
     } catch (error) {
       setResult({
