@@ -27,6 +27,7 @@ jobs:
       run: npm run build
       env:
         NODE_ENV: production
+        NEXT_PUBLIC_INSTANT_APP_ID: ${{ secrets.NEXT_PUBLIC_INSTANT_APP_ID }}
 
     - name: Export static files
       run: npm run export
