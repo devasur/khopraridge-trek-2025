@@ -1,0 +1,33 @@
+{
+  "name": "khopra-trek-coordination",
+  "version": "1.0.0",
+  "description": "Trek coordination site for Khopra Ridge Trek 2025",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "export": "next build && next export",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@instantdb/react": "^0.21.17",
+    "autoprefixer": "^10.4.0",
+    "leaflet": "^1.9.4",
+    "leaflet-gpx": "^1.7.0",
+    "next": "^14.0.0",
+    "postcss": "^8.4.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-leaflet": "^4.2.1",
+    "tailwindcss": "^3.3.0"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.20",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.0.0",
+    "typescript": "^5.0.0"
+  }
+}
