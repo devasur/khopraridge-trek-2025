@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { db, id } from '@/lib/instant'
 
 interface InterviewTemplate {
@@ -15,6 +15,8 @@ interface InterviewTemplate {
 export default function InterviewTemplates() {
   const [showAddForm, setShowAddForm] = useState(false)
   const [previewTemplate, setPreviewTemplate] = useState<any>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const [newTemplate, setNewTemplate] = useState<InterviewTemplate>({
     name: '',
     description: '',
@@ -423,9 +425,99 @@ export default function InterviewTemplates() {
 
       {/* Preset Templates */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-nepal-blue mb-4">🚀 Preset Templates</h3>
-        <p className="text-gray-600 mb-4">Professional interview templates for comprehensive documentary coverage</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-nepal-blue">🚀 Preset Templates</h3>
+          <span className="text-sm text-gray-500">{presetTemplates.length} templates</span>
+        </div>
+        <p className="text-gray-600 mb-4 lg:block hidden">Professional interview templates for comprehensive documentary coverage</p>
+
+        {/* Mobile: Horizontal Swipeable Cards */}
+        <div className="lg:hidden">
+          <div
+            ref={scrollRef}
+            className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-4 pb-4"
+            onScroll={(e) => {
+              const container = e.target as HTMLElement
+              const cardWidth = 320 + 16 // 80*4 + gap
+              const scrollLeft = container.scrollLeft
+              const newIndex = Math.round(scrollLeft / cardWidth)
+              setCurrentIndex(newIndex)
+            }}
+          >
+            {presetTemplates.map((preset, index) => (
+              <div
+                key={index}
+                className="flex-shrink-0 w-80 border rounded-lg p-4 bg-white shadow-sm snap-start"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-sm leading-tight mb-1 pr-2">{preset.name}</h4>
+                    <div className="flex items-center space-x-3 text-xs text-gray-500">
+                      <span>📝 {preset.questions.length}</span>
+                      <span>⏱️ {preset.estimatedDuration}m</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setPreviewTemplate(preset)}
+                    className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-nepal-blue hover:bg-nepal-blue/10 rounded-full transition-colors"
+                    title="Preview"
+                  >
+                    👁️
+                  </button>
+                </div>
+
+                <p className="text-xs text-gray-600 mb-3 line-clamp-2">{preset.description}</p>
+
+                <div className="flex flex-wrap gap-1 mb-4">
+                  {preset.storyArcTags.slice(0, 3).map((tag: string, tagIndex: number) => (
+                    <span key={tagIndex} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                      {tag}
+                    </span>
+                  ))}
+                  {preset.storyArcTags.length > 3 && (
+                    <span className="text-xs text-gray-400">+{preset.storyArcTags.length - 3}</span>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => loadPresetTemplate(preset)}
+                  className="w-full px-3 py-2 bg-nepal-blue text-white text-sm rounded-lg hover:bg-nepal-blue/90 active:scale-95 transition-all"
+                >
+                  Use Template
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Enhanced scroll indicator */}
+          <div className="flex items-center justify-center mt-3 space-x-3">
+            <div className="flex space-x-1">
+              {presetTemplates.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentIndex ? 'bg-nepal-blue w-6' : 'bg-gray-300'
+                  }`}
+                  onClick={() => {
+                    const cardWidth = 320 + 16
+                    scrollRef.current?.scrollTo({
+                      left: index * cardWidth,
+                      behavior: 'smooth'
+                    })
+                  }}
+                />
+              ))}
+            </div>
+            <div className="flex items-center space-x-1 text-xs text-gray-400">
+              <span>{currentIndex + 1}/{presetTemplates.length}</span>
+              <span>•</span>
+              <span>Swipe to browse</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop: Grid Layout */}
+        <div className="hidden lg:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {presetTemplates.map((preset, index) => (
             <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
               <h4 className="font-semibold mb-2">{preset.name}</h4>
@@ -464,29 +556,38 @@ export default function InterviewTemplates() {
 
       {/* Template Preview Modal */}
       {previewTemplate && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-nepal-blue">{previewTemplate.name}</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end lg:items-center justify-center z-50 p-0 lg:p-4">
+          <div className="bg-white rounded-t-xl lg:rounded-lg max-w-2xl w-full max-h-[90vh] lg:max-h-[80vh] overflow-y-auto">
+            <div className="p-4 lg:p-6">
+              {/* Mobile: Drag handle */}
+              <div className="lg:hidden flex justify-center mb-3">
+                <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
+              </div>
+
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1 min-w-0 pr-4">
+                  <h3 className="text-lg lg:text-xl font-semibold text-nepal-blue line-clamp-2 lg:line-clamp-none">
+                    {previewTemplate.name}
+                  </h3>
+                  <div className="flex items-center space-x-3 text-xs lg:text-sm text-gray-500 mt-1">
+                    <span>📝 {previewTemplate.questions.length}</span>
+                    <span>⏱️ {previewTemplate.estimatedDuration}m</span>
+                  </div>
+                </div>
                 <button
                   onClick={() => setPreviewTemplate(null)}
-                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
                 >
                   ✕
                 </button>
               </div>
 
               <div className="mb-4">
-                <p className="text-gray-600 mb-3">{previewTemplate.description}</p>
-                <div className="flex items-center space-x-4 text-sm text-gray-500 mb-4">
-                  <span>📝 {previewTemplate.questions.length} questions</span>
-                  <span>⏱️ {previewTemplate.estimatedDuration} minutes</span>
-                </div>
+                <p className="text-sm lg:text-base text-gray-600 mb-3">{previewTemplate.description}</p>
               </div>
 
               <div className="mb-4">
-                <h4 className="font-medium text-gray-800 mb-2">Story Arc Tags:</h4>
+                <h4 className="font-medium text-gray-800 mb-2 text-sm lg:text-base">Story Arc Tags:</h4>
                 <div className="flex flex-wrap gap-1 mb-4">
                   {previewTemplate.storyArcTags.map((tag: string, index: number) => (
                     <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
@@ -497,29 +598,29 @@ export default function InterviewTemplates() {
               </div>
 
               <div className="mb-6">
-                <h4 className="font-medium text-gray-800 mb-3">Interview Questions:</h4>
-                <ol className="list-decimal list-inside space-y-2">
+                <h4 className="font-medium text-gray-800 mb-3 text-sm lg:text-base">Interview Questions:</h4>
+                <ol className="list-decimal list-inside space-y-2 max-h-60 lg:max-h-none overflow-y-auto">
                   {previewTemplate.questions.map((question: string, index: number) => (
-                    <li key={index} className="text-gray-700 leading-relaxed">
+                    <li key={index} className="text-sm lg:text-base text-gray-700 leading-relaxed">
                       {question}
                     </li>
                   ))}
                 </ol>
               </div>
 
-              <div className="flex space-x-3">
+              <div className="flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-3 pt-4 border-t border-gray-200">
                 <button
                   onClick={() => {
                     loadPresetTemplate(previewTemplate)
                     setPreviewTemplate(null)
                   }}
-                  className="flex-1 px-4 py-2 bg-nepal-blue text-white rounded-lg hover:bg-nepal-blue/90"
+                  className="w-full lg:flex-1 px-4 py-3 lg:py-2 bg-nepal-blue text-white rounded-lg hover:bg-nepal-blue/90 active:scale-95 transition-all font-medium"
                 >
                   Use This Template
                 </button>
                 <button
                   onClick={() => setPreviewTemplate(null)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  className="w-full lg:w-auto px-4 py-3 lg:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 active:scale-95 transition-all"
                 >
                   Close
                 </button>

@@ -1,6 +1,6 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
-import Navigation from '@/components/Navigation'
+import MobileNavigation from '@/components/MobileNavigation'
 import InstantAuth from '@/components/InstantAuth'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -19,9 +19,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <InstantAuth>
-          <div className="min-h-screen bg-gradient-to-br from-himalaya to-blue-50">
-            <Navigation />
-            <main className="container mx-auto px-4 py-8">
+          <div className="min-h-screen bg-gray-50">
+            <MobileNavigation />
+            <main className="container mx-auto lg:px-4 lg:py-8">
               {children}
             </main>
           </div>

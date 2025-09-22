@@ -1,7 +1,14 @@
+'use client'
+
+import { useState, useRef } from 'react'
 import { trekWaypoints, dailyTrekSegments, trekStatistics } from '@/data/trekRouteData'
 import TrekMap from '@/components/TrekMap'
+import CompactRouteCard from '@/components/CompactRouteCard'
+import MobileLayout from '@/components/MobileLayout'
 
 export default function TrekRoutePage() {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const getElevationColor = (elevation: number) => {
     if (elevation > 4000) return 'text-red-600 bg-red-50'
     if (elevation > 3500) return 'text-orange-600 bg-orange-50'
@@ -29,12 +36,143 @@ export default function TrekRoutePage() {
     }
   }
 
+  const difficultyStats = {
+    easy: dailyTrekSegments.filter(s => s.difficulty === 'easy').length,
+    moderate: dailyTrekSegments.filter(s => s.difficulty === 'moderate').length,
+    difficult: dailyTrekSegments.filter(s => s.difficulty === 'difficult').length,
+  }
+
   return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-nepal-blue mb-2">🗺️ Trek Route & Elevation Profile</h1>
-        <p className="text-gray-600">Complete trail guide with waypoints, elevation data, and daily segments</p>
+    <>
+      {/* Mobile Layout */}
+      <div className="lg:hidden">
+        <MobileLayout
+          title="Trek Route"
+          subtitle={`${dailyTrekSegments.length} days • ${trekStatistics.totalDistance}`}
+        >
+          <div className="space-y-4">
+            {/* Route Stats */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+                <div className="text-lg font-bold text-blue-600">{trekStatistics.totalDays}</div>
+                <div className="text-xs text-gray-600">Total Days</div>
+              </div>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                <div className="text-lg font-bold text-green-600">{trekStatistics.totalDistance}</div>
+                <div className="text-xs text-gray-600">Distance</div>
+              </div>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
+                <div className="text-lg font-bold text-red-600">{trekStatistics.highestPoint.elevationFt.toLocaleString()}'</div>
+                <div className="text-xs text-gray-600">Highest</div>
+              </div>
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-center">
+                <div className="text-lg font-bold text-purple-600">{trekStatistics.totalElevationGain}</div>
+                <div className="text-xs text-gray-600">Ascent</div>
+              </div>
+            </div>
+
+            {/* Difficulty Overview */}
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+              <h3 className="font-semibold text-gray-800 mb-2 text-sm">Difficulty Breakdown</h3>
+              <div className="flex space-x-4 text-xs">
+                <div className="flex items-center space-x-1">
+                  <span className="text-green-500">🟢</span>
+                  <span>{difficultyStats.easy} Easy</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span className="text-yellow-500">🟡</span>
+                  <span>{difficultyStats.moderate} Moderate</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span className="text-red-500">🔴</span>
+                  <span>{difficultyStats.difficult} Difficult</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Interactive Map - Compact */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <h3 className="font-semibold text-nepal-blue mb-3 text-sm">Interactive Map</h3>
+              <div className="bg-gray-100 rounded-lg overflow-hidden">
+                <TrekMap height="h-48" showElevationProfile={false} />
+              </div>
+              <p className="text-xs text-gray-600 mt-2">
+                Tap waypoints for details. Swipe to zoom and pan.
+              </p>
+            </div>
+
+            {/* Swipeable Daily Routes */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-nepal-blue">Daily Segments</h3>
+                <span className="text-sm text-gray-500">{dailyTrekSegments.length} days</span>
+              </div>
+
+              <div
+                ref={scrollRef}
+                className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-4 pb-4"
+                onScroll={(e) => {
+                  const container = e.target as HTMLElement
+                  const cardWidth = 320 + 16
+                  const scrollLeft = container.scrollLeft
+                  const newIndex = Math.round(scrollLeft / cardWidth)
+                  setCurrentIndex(newIndex)
+                }}
+              >
+                {dailyTrekSegments.map((segment) => (
+                  <CompactRouteCard key={segment.day} segment={segment} />
+                ))}
+              </div>
+
+              {/* Enhanced scroll indicator */}
+              <div className="flex items-center justify-center mt-3 space-x-3">
+                <div className="flex space-x-1">
+                  {dailyTrekSegments.map((_, index) => (
+                    <button
+                      key={index}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        index === currentIndex ? 'bg-nepal-blue w-6' : 'bg-gray-300'
+                      }`}
+                      onClick={() => {
+                        const cardWidth = 320 + 16
+                        scrollRef.current?.scrollTo({
+                          left: index * cardWidth,
+                          behavior: 'smooth'
+                        })
+                      }}
+                    />
+                  ))}
+                </div>
+                <div className="flex items-center space-x-1 text-xs text-gray-400">
+                  <span>{currentIndex + 1}/{dailyTrekSegments.length}</span>
+                  <span>•</span>
+                  <span>Swipe to browse</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Safety Alert - Mobile */}
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="text-lg">🚨</span>
+                <span className="font-semibold text-red-800 text-sm">Safety Alert</span>
+              </div>
+              <div className="text-xs text-red-700 space-y-1">
+                <div>• Khayar Lake at 15,300ft - altitude risk</div>
+                <div>• Monitor symptoms above 11,000ft</div>
+                <div>• Stay hydrated: 3-4L water daily</div>
+              </div>
+            </div>
+          </div>
+        </MobileLayout>
       </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden lg:block space-y-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-nepal-blue mb-2">🗺️ Trek Route & Elevation Profile</h1>
+          <p className="text-gray-600">Complete trail guide with waypoints, elevation data, and daily segments</p>
+        </div>
 
       {/* Trek Statistics Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -252,6 +390,7 @@ export default function TrekRoutePage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

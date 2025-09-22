@@ -6,13 +6,10 @@ import { db } from '@/lib/instant'
 import { getEmailRole, isAdmin, getEmailRoleFromDB } from '@/lib/allowedUsers'
 
 const navItems = [
-  { href: '/', label: 'Home', icon: '🏠' },
-  { href: '/personal', label: 'Personal', icon: '👤' },
-  { href: '/group', label: 'Group', icon: '👥' },
-  { href: '/route', label: 'Route', icon: '🗺️' },
-  { href: '/packing', label: 'Packing', icon: '🎒' },
-  { href: '/documentary', label: 'Documentary', icon: '🎬' },
-  { href: '/interviews', label: 'Interviews', icon: '🎤' },
+  { href: '/', label: 'Dashboard', icon: '🏠' },
+  { href: '/personal', label: 'My Trek', icon: '👤' },
+  { href: '/group', label: 'Team', icon: '👥' },
+  { href: '/interviews', label: 'Production', icon: '🎬' },
   { href: '/emergency', label: 'Emergency', icon: '🚨' },
 ]
 
